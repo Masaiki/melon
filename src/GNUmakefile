@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2020, yzrh <yzrh@tuta.io>
+# Copyright (c) 2020, yzrh <yzrh@noema.org>
 #
 # SPDX-License-Identifier: Apache-2.0
 #

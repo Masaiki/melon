@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, yzrh <yzrh@tuta.io>
+ * Copyright (c) 2020, yzrh <yzrh@noema.org>
  *
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -17,7 +17,7 @@ int
 main(int argc, char **argv, char **envp)
 {
 	printf("Melon " VERSION "." RELEASE "." PATCH EXTRA "\n");
-	printf("Copyright (c) 2020, yzrh <yzrh@tuta.io>\n\n");
+	printf("Copyright (c) 2020, yzrh <yzrh@noema.org>\n\n");
 
 	cnki_t *param = NULL;
 
