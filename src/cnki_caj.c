@@ -18,7 +18,7 @@ cnki_caj(cnki_t **param)
 		printf("Begin 'CAJ' conversion\n");
 
 	if ((*param)->stat > 1)
-		printf("Reading document body address at %x\n", ADDRESS_CAJ_BODY);
+		printf("Reading document body address at 0x%x\n", ADDRESS_CAJ_BODY);
 
 	int addr;
 
@@ -29,7 +29,7 @@ cnki_caj(cnki_t **param)
 	fseek((*param)->fp_i, addr, SEEK_SET);
 
 	if ((*param)->stat > 0)
-		printf("Advised document body address is %x\n", addr);
+		printf("Advised document body address is 0x%x\n", addr);
 
 	cnki_pdf(param);
 

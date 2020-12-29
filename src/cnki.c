@@ -33,7 +33,7 @@ cnki_create(cnki_t **param)
 	memset((*param)->file_stat, 0, sizeof(file_stat_t));
 
 	(*param)->object_outline = NULL;
-	(*param)->object_nh = NULL;
+	(*param)->object_hn = NULL;
 
 	return 0;
 }
@@ -46,8 +46,8 @@ cnki_destroy(cnki_t **param)
 			free((*param)->file_stat);
 		if ((*param)->object_outline != NULL)
 			free((*param)->object_outline);
-		if ((*param)->object_nh != NULL)
-			free((*param)->object_nh);
+		if ((*param)->object_hn != NULL)
+			free((*param)->object_hn);
 		free(*param);
 	}
 }
@@ -59,7 +59,7 @@ cnki_info(cnki_t **param)
 		return 1;
 
 	if ((*param)->stat > 1)
-		printf("Reading file header at %x\n", ADDRESS_HEAD);
+		printf("Reading file header at 0x%x\n", ADDRESS_HEAD);
 
 	int addr[2];
 
@@ -84,7 +84,7 @@ cnki_info(cnki_t **param)
 	}
 
 	if ((*param)->stat > 1)
-		printf("Reading page count at %x\n", addr[0]);
+		printf("Reading page count at 0x%x\n", addr[0]);
 
 	fseek((*param)->fp_i, addr[0], SEEK_SET);
 	fread(&(*param)->file_stat->page, 4, 1, (*param)->fp_i);
@@ -94,7 +94,7 @@ cnki_info(cnki_t **param)
 			(*param)->file_stat->page);
 
 	if ((*param)->stat > 1)
-		printf("Reading outline count at %x\n", addr[1]);
+		printf("Reading outline count at 0x%x\n", addr[1]);
 
 	fseek((*param)->fp_i, addr[1], SEEK_SET);
 	fread(&(*param)->file_stat->outline, 4, 1, (*param)->fp_i);

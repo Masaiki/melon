@@ -44,26 +44,31 @@ typedef struct _object_outline_tree_t {
 	struct _object_outline_tree_t *right;
 } object_outline_tree_t;
 
-typedef enum _nh_code {
+typedef enum _hn_code {
 	CCITTFAX,
 	DCT_0,
-	DCT_1,
+	DCT_1, /* Inverted */
 	JBIG2,
 	JPX
-} nh_code;
+} hn_code;
 
-typedef struct _object_nh_t {
-	int32_t address; /* Starting at end of object_outline_t */
+typedef struct _hn_image_t {
+	int32_t format; /* hn_code */
+	int32_t address;
 	int32_t size;
-	int16_t page[2];
+	char *image;
+} hn_image_t;
+
+typedef struct _object_hn_t {
+	int32_t address; /* Starting at end of object_outline_t */
+	int32_t text_size;
+	int16_t image_length;
+	int16_t page;
 	int32_t zero[2];
 	char *text;
-	int32_t image_format; /* nh_code */
-	int32_t image_address;
-	int32_t image_size;
-	char *image;
-	struct _object_nh_t *next;
-} object_nh_t;
+	struct _hn_image_t *image_data;
+	struct _object_hn_t *next;
+} object_hn_t;
 
 typedef struct _cnki_t {
 	int stat;
@@ -72,7 +77,7 @@ typedef struct _cnki_t {
 	FILE *fp_o;
 	file_stat_t *file_stat;
 	object_outline_t *object_outline;
-	object_nh_t *object_nh;
+	object_hn_t *object_hn;
 } cnki_t;
 
 /* cnki_pdf.c */
@@ -81,6 +86,8 @@ int cnki_pdf(cnki_t **param);
 /* cnki_outline_tree.c */
 int cnki_outline_tree(object_outline_tree_t **outline_tree,
 	object_outline_t **outline, int *ids);
+
+/* cnki_zlib.c */
 
 /* cnki_xml.c */
 int cnki_xml(char **xml, FILE **fp);

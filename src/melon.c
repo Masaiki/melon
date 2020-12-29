@@ -16,9 +16,6 @@
 int
 main(int argc, char **argv, char **envp)
 {
-	printf("Melon " VERSION "." RELEASE "." PATCH EXTRA "\n");
-	printf("Copyright (c) 2020, yzrh <yzrh@noema.org>\n\n");
-
 	cnki_t *param = NULL;
 
 	if (cnki_create(&param) != 0) {
@@ -83,6 +80,10 @@ main(int argc, char **argv, char **envp)
 			return EXIT_FAILURE;
 		}
 
+		if (param->stat > 0)
+			printf("Melon " VERSION "." RELEASE "." PATCH EXTRA "\n"
+				"Copyright (c) 2020, yzrh <yzrh@noema.org>\n\n");
+
 		cnki_info(&param);
 
 		if (strcmp(param->file_stat->type, "%PDF") == 0) {
@@ -98,7 +99,7 @@ main(int argc, char **argv, char **envp)
 				return EXIT_FAILURE;
 			}
 		} else if (strcmp(param->file_stat->type, "HN") == 0) {
-			if (cnki_nh(&param) != 0) {
+			if (cnki_hn(&param) != 0) {
 				fprintf(stderr, "%s: %s\n", argv[0],
 					strerror(errno));
 				return EXIT_FAILURE;

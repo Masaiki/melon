@@ -14,8 +14,8 @@ int cnki_info(cnki_t **param);
 /* cnki_caj.c */
 int cnki_caj(cnki_t **param);
 
-/* cnki_nh.c */
-int cnki_nh(cnki_t **param);
+/* cnki_hn.c */
+int cnki_hn(cnki_t **param);
 
 /* cnki_kdh.c */
 int cnki_kdh(cnki_t **param);
