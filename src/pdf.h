@@ -54,6 +54,7 @@ int pdf_get_size(pdf_object_t **pdf);
 int pdf_get_free_id(pdf_object_t **pdf);
 int pdf_get_free_ids(pdf_object_t **pdf, int **ids, int count);
 int pdf_get_catalog_id(pdf_object_t **pdf);
+int pdf_get_xref_id(pdf_object_t **pdf);
 int pdf_get_parent_id(pdf_object_t **pdf, int **id);
 int pdf_get_kid_id(pdf_object_t **pdf, int id, int **kid);
 int pdf_get_kid_count(pdf_object_t **pdf, int id);

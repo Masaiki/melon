@@ -27,6 +27,11 @@ cnki_kdh(cnki_t **param)
 
 	char buf[(*param)->size_buf];
 
+	FILE *tmp = tmpfile();
+
+	if (tmp == NULL)
+		return 1;
+
 	for (;;) {
 		fread(buf, (*param)->size_buf, 1, (*param)->fp_i);
 
@@ -35,15 +40,27 @@ cnki_kdh(cnki_t **param)
 			key_cur++;
 		}
 
-		fwrite(buf, (*param)->size_buf, 1, (*param)->fp_o);
+		fwrite(buf, (*param)->size_buf, 1, tmp);
 
 		if (ftell((*param)->fp_i) == size)
 			break;
 	}
 
 	if ((*param)->stat > 0)
-		printf("Decryption ended total %ld byte(s) written\n",
-			ftell((*param)->fp_o));
+		printf("Decrypted %ld byte(s)\n", ftell(tmp));
+
+	fseek(tmp, 0, SEEK_SET);
+
+	FILE *orig = (*param)->fp_i;
+	(*param)->fp_i = tmp;
+
+	cnki_pdf(param);
+
+	(*param)->fp_i = orig;
+	fclose(tmp);
+
+	if ((*param)->stat > 0)
+		printf("Conversion ended\n");
 
 	return 0;
 }

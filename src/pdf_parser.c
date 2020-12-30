@@ -154,10 +154,16 @@ pdf_load(pdf_object_t **pdf, FILE **fp, int size_buf)
 
 		if ((head = memmem(buf, ptr->size, "<<", 2)) != NULL &&
 			(tail = _memmem_whitespace(buf, ptr->size, ">>", 2)) != NULL) {
-			/* A dictionary object may have nested dictionary */
+			/*
+			 * A dictionary object may have nested dictionary,
+			 * but it should not be in a stream
+			 */
 			while ((tmp = _memmem_whitespace(tail + 2,
 				ptr->size - (tail - buf) - 2,
-				">>", 2)) != NULL)
+				">>", 2)) != NULL &&
+				memmem(tail + 2,
+				ptr->size - (tail - buf) - 2,
+				"stream\r\n", 8) == NULL)
 				tail = tmp;
 
 			ptr->dictionary_size = tail - head + 2;

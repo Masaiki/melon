@@ -162,6 +162,27 @@ pdf_get_catalog_id(pdf_object_t **pdf)
 }
 
 int
+pdf_get_xref_id(pdf_object_t **pdf)
+{
+	if (*pdf == NULL)
+		return 1;
+
+	int xref_id = 0;
+
+	pdf_object_t *ptr = (*pdf)->next;
+
+	while (ptr != NULL) {
+		if (ptr->dictionary != NULL &&
+			strstr(ptr->dictionary, "/XRef") != NULL)
+			xref_id = ptr->id;
+
+		ptr = ptr->next;
+	}
+
+	return xref_id;
+}
+
+int
 pdf_get_parent_id(pdf_object_t **pdf, int **id)
 {
 	if (*pdf == NULL || *id != NULL)

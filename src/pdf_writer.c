@@ -27,10 +27,10 @@ pdf_dump_obj(pdf_object_t **pdf, FILE **fp)
 		fprintf(*fp, "%d 0 obj\n", ptr->id);
 
 		if (ptr->dictionary != NULL) {
-			fputs(ptr->dictionary, *fp);
+			fwrite(ptr->dictionary, ptr->dictionary_size, 1, *fp);
 			fputs("\n", *fp);
 		} else if (ptr->object != NULL) {
-			fputs(ptr->object, *fp);
+			fwrite(ptr->object, ptr->object_size, 1, *fp);
 			fputs("\n", *fp);
 		} else if (ptr->stream == NULL) {
 			fputs("null\n", *fp);

@@ -6,14 +6,10 @@ Melon: Converter that produces PDF from CNKI proprietary formats
 Development
 -----------
 
-Currently, PDF, CAJ, and KDH can be converted. Please report 
+Currently, CAJ and KDH can be converted. Please report
 any failures with a sample that can reproduce the behaviour.
 
 HN support is being worked on.
-
-KDH is essentially an invalid PDF file xor'ed with a predetermined key.
-You may want to convert the decrypted KDH to valid PDF, although some
-PDF readers can display the invalid PDF.
 
 Usage
 =====

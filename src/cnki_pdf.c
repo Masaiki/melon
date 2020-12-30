@@ -232,28 +232,62 @@ cnki_pdf(cnki_t **param)
 	}
 
 	if ((*param)->stat > 1)
-		printf("Generating '/Catalog' dictionary\n");
+		printf("Searching for catalog object\n");
 
-	snprintf(buf, 64,
-		"<<\n/Type /Catalog\n/Pages %d 0 R\n",
-		root);
-	strcat(dictionary, buf);
+	int catalog = pdf_get_catalog_id(&pdf);
 
-	if (ids != NULL) {
+	if (catalog != 0) {
+		if ((*param)->stat > 0)
+			printf("catalog object is %d.\n", catalog);
+	} else {
+		if ((*param)->stat > 0)
+			printf("catalog object is missing\n");
+
+		if ((*param)->stat > 1)
+			printf("Generating catalog object\n");
+
 		snprintf(buf, 64,
-			"/Outlines %d 0 R\n/PageMode /UseOutlines\n",
-			ids[0]);
+			"<<\n/Type /Catalog\n/Pages %d 0 R\n",
+			root);
 		strcat(dictionary, buf);
+
+		if (ids != NULL) {
+			snprintf(buf, 64,
+				"/Outlines %d 0 R\n/PageMode /UseOutlines\n",
+				ids[0]);
+			strcat(dictionary, buf);
+		}
+
+		strcat(dictionary, ">>\n");
+
+		pdf_obj_append(&pdf, 0, NULL, dictionary, NULL);
+
+		if ((*param)->stat > 0)
+			printf("Generated catalog object\n");
 	}
 
-	strcat(dictionary, ">>\n");
+	if ((*param)->stat > 1)
+		printf("Searching for xref object\n");
 
-	pdf_obj_append(&pdf, 0, NULL, dictionary, NULL);
+	int xref = pdf_get_xref_id(&pdf);
+
+	if (xref != 0) {
+		if ((*param)->stat > 0)
+			printf("xref object is %d.\n", xref);
+
+		if ((*param)->stat > 1)
+			printf("Deleting xref object\n");
+
+		pdf_obj_del(&pdf, xref);
+
+		if ((*param)->stat > 0)
+			printf("Deleted xref object\n");
+	} else {
+		if ((*param)->stat > 0)
+			printf("xref object is missing\n");
+	}
 
 	free(dictionary);
-
-	if ((*param)->stat > 0)
-		printf("Generated '/Catalog' dictionary\n");
 
 	if ((*param)->stat > 1)
 		printf("Sorting object(s)\n");
@@ -312,7 +346,7 @@ cnki_pdf(cnki_t **param)
 			pdf_get_count(&pdf),
 			ftell((*param)->fp_o));
 
-	long xref = ftell((*param)->fp_o);
+	long cur_xref = ftell((*param)->fp_o);
 
 	if ((*param)->stat > 1)
 		printf("Writing cross-reference table\n");
@@ -323,7 +357,7 @@ cnki_pdf(cnki_t **param)
 	} else {
 		if ((*param)->stat > 0)
 			printf("Cross-reference table %ld byte(s) written\n",
-				ftell((*param)->fp_o) - xref);
+				ftell((*param)->fp_o) - cur_xref);
 	}
 
 	if ((*param)->stat > 1)
@@ -332,7 +366,7 @@ cnki_pdf(cnki_t **param)
 	if ((*param)->stat > 0)
 		cur = ftell((*param)->fp_o);
 
-	if (pdf_dump_trailer(&pdf, &(*param)->fp_o, xref) != 0) {
+	if (pdf_dump_trailer(&pdf, &(*param)->fp_o, cur_xref) != 0) {
 		if ((*param)->stat > 0)
 			printf("Trailer not written\n");
 	} else {
