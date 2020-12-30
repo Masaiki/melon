@@ -69,15 +69,15 @@ cnki_info(cnki_t **param)
 	if ((*param)->stat > 0)
 		printf("File type is '%s'\n", (*param)->file_stat->type);
 
-	if (strcmp((*param)->file_stat->type, "%PDF") == 0) {
+	if (strncmp((*param)->file_stat->type, "%PDF", 4) == 0) {
 		return 0;
-	} else if (strcmp((*param)->file_stat->type, "CAJ") == 0) {
+	} else if (strncmp((*param)->file_stat->type, "CAJ", 3) == 0) {
 		addr[0] = ADDRESS_CAJ_PAGE;
 		addr[1] = ADDRESS_CAJ_OUTLINE;
-	} else if (strcmp((*param)->file_stat->type, "HN") == 0) {
+	} else if (strncmp((*param)->file_stat->type, "HN", 2) == 0) {
 		addr[0] = ADDRESS_HN_PAGE;
 		addr[1] = ADDRESS_HN_OUTLINE;
-	} else if (strcmp((*param)->file_stat->type, "KDH ") == 0) {
+	} else if (strncmp((*param)->file_stat->type, "KDH ", 4) == 0) {
 		return 0;
 	} else {
 		return 1;

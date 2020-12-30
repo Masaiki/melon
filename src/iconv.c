@@ -9,7 +9,6 @@
 
 #include <iconv.h>
 
-/* So, why would anyone use something other than UTF-8? */
 int
 strconv(char **dst,
 	const char * restrict dst_code,
@@ -51,8 +50,7 @@ strconv(char **dst,
 		free(src_start);
 		return 1;
 	} else {
-		/* Not including NULL */
-		*size -= dst_size + 2;
+		*size -= dst_size;
 
 		*dst = malloc(*size);
 

@@ -21,8 +21,6 @@ typedef struct _pdf_object_t {
 
 /* pdf.c */
 /* TODO: Rewrite object dictionary */
-/* TODO: Compact object id */
-/* TODO: `mutool clean -gggsz' */
 int pdf_obj_create(pdf_object_t **pdf);
 void pdf_obj_destroy(pdf_object_t **pdf);
 int pdf_obj_add(pdf_object_t **pdf, int id,

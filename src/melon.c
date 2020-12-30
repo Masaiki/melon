@@ -86,25 +86,25 @@ main(int argc, char **argv, char **envp)
 
 		cnki_info(&param);
 
-		if (strcmp(param->file_stat->type, "%PDF") == 0) {
+		if (strncmp(param->file_stat->type, "%PDF", 4) == 0) {
 			if (cnki_pdf(&param) != 0) {
 				fprintf(stderr, "%s: %s\n", argv[0],
 					strerror(errno));
 				return EXIT_FAILURE;
 			}
-		} else if (strcmp(param->file_stat->type, "CAJ") == 0) {
+		} else if (strncmp(param->file_stat->type, "CAJ", 3) == 0) {
 			if (cnki_caj(&param) != 0) {
 				fprintf(stderr, "%s: %s\n", argv[0],
 					strerror(errno));
 				return EXIT_FAILURE;
 			}
-		} else if (strcmp(param->file_stat->type, "HN") == 0) {
+		} else if (strncmp(param->file_stat->type, "HN", 2) == 0) {
 			if (cnki_hn(&param) != 0) {
 				fprintf(stderr, "%s: %s\n", argv[0],
 					strerror(errno));
 				return EXIT_FAILURE;
 			}
-		} else if (strcmp(param->file_stat->type, "KDH ") == 0) {
+		} else if (strncmp(param->file_stat->type, "KDH ", 4) == 0) {
 			if (cnki_kdh(&param) != 0) {
 				fprintf(stderr, "%s: %s\n", argv[0],
 					strerror(errno));

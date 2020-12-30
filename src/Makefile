@@ -10,7 +10,7 @@ obj = ${src:.c=.o}
 PREFIX = /usr/local
 
 CFLAGS = -O3 -march=native -pipe -flto=thin -Wall
-LDFLAGS = -Wl,-O3 -lcrypto -Wl,--as-needed
+LDFLAGS = -Wl,-O3 -lcrypto -lz -Wl,--as-needed
 
 all: ${obj}
 	${CC} ${LDFLAGS} -o melon $>

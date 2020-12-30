@@ -50,7 +50,7 @@ _outline(pdf_object_t **pdf, object_outline_tree_t **outline_tree, int id, int *
 			&size) == 0) {
 			strcat(dictionary, "/Title <feff");
 
-			for (int i = 0; i < size; i++) {
+			for (int i = 0; i < size - 2; i++) {
 				snprintf(buf, 64, "%02x", (unsigned char) str[i]);
 				strcat(dictionary, buf);
 			}
@@ -89,7 +89,7 @@ _outline(pdf_object_t **pdf, object_outline_tree_t **outline_tree, int id, int *
 		}
 
 		/* Page starts from 0 */
-		snprintf(buf, 64, "/Dest [%d /XYZ null null null]\n>>\n",
+		snprintf(buf, 64, "/Dest [%d /XYZ null null null]\n>>",
 			atoi(ptr->item->page) - 1);
 		strcat(dictionary, buf);
 
@@ -123,7 +123,7 @@ pdf_cnki_outline(pdf_object_t **pdf, object_outline_t **outline, int **ids)
 	free(outline_tree);
 
 	snprintf(buf, 128,
-		"<<\n/Type Outlines\n/First %d 0 R\n/Last %d 0 R\n/Count %d\n>>\n",
+		"<<\n/Type Outlines\n/First %d 0 R\n/Last %d 0 R\n/Count %d\n>>",
 		ret[0], ret[1], ret[2]);
 
 	free(ret);

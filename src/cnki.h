@@ -64,7 +64,7 @@ typedef struct _object_hn_t {
 	int32_t text_size;
 	int16_t image_length;
 	int16_t page;
-	int32_t zero[2];
+	int32_t unknown[2]; /* TODO: what is it? */
 	char *text;
 	struct _hn_image_t *image_data;
 	struct _object_hn_t *next;
@@ -88,6 +88,8 @@ int cnki_outline_tree(object_outline_tree_t **outline_tree,
 	object_outline_t **outline, int *ids);
 
 /* cnki_zlib.c */
+int cnki_zlib(char **dst, int *dst_size,
+	const char * restrict src, int src_size);
 
 /* cnki_xml.c */
 int cnki_xml(char **xml, FILE **fp);

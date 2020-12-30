@@ -4,8 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-int
-strconv(char **dst,
+int strconv(char **dst,
 	const char * restrict dst_code,
 	const char * restrict src,
 	const char * restrict src_code,
