@@ -84,24 +84,24 @@ pdf_obj_add(pdf_object_t **pdf, int id,
 	(*pdf)->id = id;
 
 	if (dictionary != NULL) {
-		(*pdf)->dictionary_size = strlen(dictionary) + 1;
+		(*pdf)->dictionary_size = strlen(dictionary);
 		(*pdf)->dictionary = malloc((*pdf)->dictionary_size);
 
 		if ((*pdf)->dictionary == NULL)
 			return 1;
 
-		strncpy((*pdf)->dictionary, dictionary, (*pdf)->dictionary_size);
+		memcpy((*pdf)->dictionary, dictionary, (*pdf)->dictionary_size);
 
 		(*pdf)->object_size = 0;
 		(*pdf)->object = NULL;
 	} else if (object != NULL) {
-		(*pdf)->object_size = strlen(object) + 1;
+		(*pdf)->object_size = strlen(object);
 		(*pdf)->object = malloc((*pdf)->object_size);
 
 		if ((*pdf)->object == NULL)
 			return 1;
 
-		strncpy((*pdf)->object, object, (*pdf)->object_size);
+		memcpy((*pdf)->object, object, (*pdf)->object_size);
 
 		(*pdf)->dictionary_size = 0;
 		(*pdf)->dictionary = NULL;

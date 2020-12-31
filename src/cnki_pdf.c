@@ -110,7 +110,7 @@ cnki_pdf(cnki_t **param)
 					strcat(dictionary, " ");
 			}
 			snprintf(buf, 64,
-				"]\n/Count %d\n>>\n",
+				"]\n/Count %d\n>>",
 				pdf_get_kid_count(&pdf, parent[i]));
 			strcat(dictionary, buf);
 
@@ -198,7 +198,7 @@ cnki_pdf(cnki_t **param)
 		snprintf(buf, 64, "/Count %d\n", (*param)->file_stat->page);
 		strcat(dictionary, buf);
 
-		strcat(dictionary, ">>\n");
+		strcat(dictionary, ">>");
 
 		pdf_obj_prepend(&pdf, root, NULL, dictionary, NULL);
 
@@ -238,10 +238,10 @@ cnki_pdf(cnki_t **param)
 
 	if (catalog != 0) {
 		if ((*param)->stat > 0)
-			printf("catalog object is %d.\n", catalog);
+			printf("Catalog object is %d.\n", catalog);
 	} else {
 		if ((*param)->stat > 0)
-			printf("catalog object is missing\n");
+			printf("Catalog object is missing\n");
 
 		if ((*param)->stat > 1)
 			printf("Generating catalog object\n");
@@ -258,7 +258,7 @@ cnki_pdf(cnki_t **param)
 			strcat(dictionary, buf);
 		}
 
-		strcat(dictionary, ">>\n");
+		strcat(dictionary, ">>");
 
 		pdf_obj_append(&pdf, 0, NULL, dictionary, NULL);
 
@@ -273,7 +273,7 @@ cnki_pdf(cnki_t **param)
 
 	if (xref != 0) {
 		if ((*param)->stat > 0)
-			printf("xref object is %d.\n", xref);
+			printf("Xref object is %d.\n", xref);
 
 		if ((*param)->stat > 1)
 			printf("Deleting xref object\n");
@@ -284,7 +284,7 @@ cnki_pdf(cnki_t **param)
 			printf("Deleted xref object\n");
 	} else {
 		if ((*param)->stat > 0)
-			printf("xref object is missing\n");
+			printf("Xref object is missing\n");
 	}
 
 	free(dictionary);

@@ -4,6 +4,12 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+#ifdef __linux__
+
+#define _GNU_SOURCE
+
+#endif /* __linux__ */
+
 #include <stdlib.h>
 #include <string.h>
 
@@ -152,7 +158,8 @@ pdf_get_catalog_id(pdf_object_t **pdf)
 
 	while (ptr != NULL) {
 		if (ptr->dictionary != NULL &&
-			strstr(ptr->dictionary, "/Catalog") != NULL)
+			memmem(ptr->dictionary, ptr->dictionary_size,
+				"/Catalog", 8) != NULL)
 			catalog_id = ptr->id;
 
 		ptr = ptr->next;
@@ -173,7 +180,8 @@ pdf_get_xref_id(pdf_object_t **pdf)
 
 	while (ptr != NULL) {
 		if (ptr->dictionary != NULL &&
-			strstr(ptr->dictionary, "/XRef") != NULL)
+			memmem(ptr->dictionary, ptr->dictionary_size,
+				"/XRef", 5) != NULL)
 			xref_id = ptr->id;
 
 		ptr = ptr->next;
@@ -208,10 +216,11 @@ pdf_get_parent_id(pdf_object_t **pdf, int **id)
 
 	while (ptr != NULL) {
 		if (ptr->dictionary != NULL &&
-			(head = strstr(ptr->dictionary, "/Parent ")) != NULL &&
+			(head = memmem(ptr->dictionary, ptr->dictionary_size,
+			"/Parent ", 8)) != NULL &&
 			(tail = strchr(head + 8, ' ')) != NULL) {
 			memset(str, 0, 8);
-			strncpy(str, head + 8, (tail - head) - 8);
+			memcpy(str, head + 8, (tail - head) - 8);
 			str_val = atoi(str);
 
 			if (!_id_in(str_val, *id)) {
@@ -258,7 +267,8 @@ pdf_get_kid_id(pdf_object_t **pdf, int id, int **kid)
 		}
 
 		if (ptr->dictionary != NULL &&
-			strstr(ptr->dictionary, str) != NULL) {
+			memmem(ptr->dictionary, ptr->dictionary_size,
+			str, strlen(str)) != NULL) {
 			ret = realloc(*kid, ++kid_size * sizeof(int));
 
 			if (ret == NULL)
@@ -297,13 +307,15 @@ pdf_get_kid_count(pdf_object_t **pdf, int id)
 
 	while (ptr != NULL) {
 		if (ptr->dictionary != NULL &&
-			strstr(ptr->dictionary, id_str) != NULL &&
-			(pos = strstr(ptr->dictionary, "/Count ")) != NULL) {
+			memmem(ptr->dictionary, ptr->dictionary_size,
+			id_str, strlen(id_str)) != NULL &&
+			(pos = memmem(ptr->dictionary, ptr->dictionary_size,
+			"/Count ", 7)) != NULL) {
 			for (int i = 8; i >= 0; i--) {
 				if (i + 7 <= ptr->dictionary_size - (pos - ptr->dictionary) &&
 					pos[i + 7] >= '0' && pos[i + 7] <= '9') {
 					memset(str, 0, 8);
-					strncpy(str, pos + 7, i + 1);
+					memcpy(str, pos + 7, i + 1);
 					str_val = atoi(str);
 					count += str_val;
 					break;
