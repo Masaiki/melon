@@ -17,6 +17,8 @@ Dependency
 1.  OpenSSL
 2.  libiconv
 3.  zlib
+4.  JBIG-KIT
+5.  libjpeg-turbo
 
 Usage
 =====

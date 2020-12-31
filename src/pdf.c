@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, yzrh <yzrh@noema.org>
+ * Copyright (c) 2020-2021, yzrh <yzrh@noema.org>
  *
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -67,7 +67,8 @@ int
 pdf_obj_add(pdf_object_t **pdf, int id,
 	const char * restrict object,
 	const char * restrict dictionary,
-	const char * restrict stream)
+	const char * restrict stream,
+	int stream_size)
 {
 	if (*pdf != NULL || id <= 0 ||
 		(object != NULL && dictionary != NULL))
@@ -112,14 +113,15 @@ pdf_obj_add(pdf_object_t **pdf, int id,
 		(*pdf)->dictionary = NULL;
 	}
 
-	if (stream != NULL) {
-		(*pdf)->stream_size = sizeof(stream);
+	if (stream != NULL && stream_size > 0) {
+		(*pdf)->stream_size = stream_size + 1;
 		(*pdf)->stream = malloc((*pdf)->stream_size);
 
 		if ((*pdf)->stream == NULL)
 			return 1;
 
 		memcpy((*pdf)->stream, stream, (*pdf)->stream_size);
+		(*pdf)->stream[(*pdf)->stream_size - 1] = '\n';
 	} else {
 		(*pdf)->stream_size = 0;
 		(*pdf)->stream = NULL;
@@ -153,7 +155,8 @@ int
 pdf_obj_prepend(pdf_object_t **pdf, int id,
 	const char * restrict object,
 	const char * restrict dictionary,
-	const char * restrict stream)
+	const char * restrict stream,
+	int stream_size)
 {
 	if (*pdf == NULL)
 		return 1;
@@ -163,7 +166,8 @@ pdf_obj_prepend(pdf_object_t **pdf, int id,
 
 	pdf_object_t *ptr = NULL;
 
-	if (pdf_obj_add(&ptr, id, object, dictionary, stream) != 0) {
+	if (pdf_obj_add(&ptr, id, object, dictionary,
+		stream, stream_size) != 0) {
 		free(ptr);
 		return 1;
 	}
@@ -178,7 +182,8 @@ int
 pdf_obj_append(pdf_object_t **pdf, int id,
 	const char * restrict object,
 	const char * restrict dictionary,
-	const char * restrict stream)
+	const char * restrict stream,
+	int stream_size)
 {
 	if (*pdf == NULL)
 		return 1;
@@ -190,8 +195,63 @@ pdf_obj_append(pdf_object_t **pdf, int id,
 	while (ptr->next != NULL)
 		ptr = ptr->next;
 
-	if (pdf_obj_add(&ptr->next, id, object, dictionary, stream) != 0)
+	if (pdf_obj_add(&ptr->next, id, object, dictionary,
+		stream, stream_size) != 0)
 		return 1;
+
+	return 0;
+}
+
+int
+pdf_obj_replace(pdf_object_t **pdf, int id,
+	const char * restrict object,
+	const char * restrict dictionary,
+	const char * restrict stream,
+	int stream_size)
+{
+	pdf_object_t *ptr;
+	char *ret;
+
+	if (pdf_get_obj(pdf, id, &ptr) != 0)
+		return 1;
+
+	if (object != NULL && dictionary != NULL)
+		return 1;
+
+	if (dictionary != NULL) {
+		ret = realloc(ptr->dictionary, strlen(dictionary));
+
+		if (ret == NULL)
+			return 1;
+
+		ptr->dictionary_size = strlen(dictionary);
+		ptr->dictionary = ret;
+
+		memcpy(ptr->dictionary, dictionary, ptr->dictionary_size);
+	} else if (object != NULL) {
+		ret = realloc(ptr->object, strlen(object));
+
+		if (ret == NULL)
+			return 1;
+
+		ptr->object_size = strlen(object);
+		ptr->object = ret;
+
+		memcpy(ptr->object, object, ptr->object_size);
+	}
+
+	if (stream != NULL && stream_size > 0) {
+		ret = realloc(ptr->stream, stream_size + 1);
+
+		if (ret == NULL)
+			return 1;
+
+		ptr->stream_size = stream_size + 1;
+		ptr->stream = ret;
+
+		memcpy(ptr->stream, stream, ptr->stream_size);
+		ptr->stream[ptr->stream_size - 1] = '\n';
+	}
 
 	return 0;
 }

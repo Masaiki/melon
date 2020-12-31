@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, yzrh <yzrh@noema.org>
+ * Copyright (c) 2020-2021, yzrh <yzrh@noema.org>
  *
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -26,16 +26,24 @@ void pdf_obj_destroy(pdf_object_t **pdf);
 int pdf_obj_add(pdf_object_t **pdf, int id,
 	const char * restrict object,
 	const char * restrict dictionary,
-	const char * restrict stream);
+	const char * restrict stream,
+	int stream_size);
 int pdf_obj_del(pdf_object_t **pdf, int id);
 int pdf_obj_prepend(pdf_object_t **pdf, int id,
 	const char * restrict object,
 	const char * restrict dictionary,
-	const char * restrict stream);
+	const char * restrict stream,
+	int stream_size);
 int pdf_obj_append(pdf_object_t **pdf, int id,
 	const char * restrict object,
 	const char * restrict dictionary,
-	const char * restrict stream);
+	const char * restrict stream,
+	int stream_size);
+int pdf_obj_replace(pdf_object_t **pdf, int id,
+	const char * restrict object,
+	const char * restrict dictionary,
+	const char * restrict stream,
+	int stream_size);
 int pdf_obj_sort(pdf_object_t **pdf);
 
 /* pdf_parser.c */

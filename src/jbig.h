@@ -4,7 +4,5 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#define VERSION	"0"
-#define RELEASE	"1"
-#define PATCH	"0"
-#define EXTRA	""
+int strdec_jbig(char **bitmap, int *bitmap_size,
+	const char * restrict data, int data_size);

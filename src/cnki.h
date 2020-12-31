@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, yzrh <yzrh@noema.org>
+ * Copyright (c) 2020-2021, yzrh <yzrh@noema.org>
  *
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -82,6 +82,7 @@ typedef struct _cnki_t {
 
 /* cnki_pdf.c */
 int cnki_pdf(cnki_t **param);
+int cnki_pdf_hn(cnki_t **param);
 
 /* cnki_outline_tree.c */
 int cnki_outline_tree(object_outline_tree_t **outline_tree,
@@ -90,6 +91,11 @@ int cnki_outline_tree(object_outline_tree_t **outline_tree,
 /* cnki_zlib.c */
 int cnki_zlib(char **dst, int *dst_size,
 	const char * restrict src, int src_size);
+
+/* cnki_jbig.c */
+int cnki_jbig(char **bitmap, int *bitmap_size,
+	int *bitmap_width, int *bitmap_height,
+	const char * restrict jbig, int jbig_size);
 
 /* cnki_xml.c */
 int cnki_xml(char **xml, FILE **fp);

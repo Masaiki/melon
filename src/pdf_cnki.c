@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, yzrh <yzrh@noema.org>
+ * Copyright (c) 2020-2021, yzrh <yzrh@noema.org>
  *
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -93,7 +93,7 @@ _outline(pdf_object_t **pdf, object_outline_tree_t **outline_tree, int id, int *
 			atoi(ptr->item->page) - 1);
 		strcat(dictionary, buf);
 
-		pdf_obj_append(pdf, ptr->id, NULL, dictionary, NULL);
+		pdf_obj_append(pdf, ptr->id, NULL, dictionary, NULL, 0);
 
 		if (ptr->left == NULL)
 			(*stat)[1] = ptr->id;
@@ -128,7 +128,7 @@ pdf_cnki_outline(pdf_object_t **pdf, object_outline_t **outline, int **ids)
 
 	free(ret);
 
-	pdf_obj_append(pdf, (*ids)[0], NULL, buf, NULL);
+	pdf_obj_append(pdf, (*ids)[0], NULL, buf, NULL, 0);
 
 	return 0;
 }
