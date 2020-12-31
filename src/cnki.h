@@ -45,7 +45,7 @@ typedef struct _object_outline_tree_t {
 } object_outline_tree_t;
 
 typedef enum _hn_code {
-	CCITTFAX,
+	JBIG,
 	DCT_0,
 	DCT_1, /* Inverted */
 	JBIG2,

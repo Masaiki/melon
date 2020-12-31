@@ -11,6 +11,13 @@ any failures with a sample that can reproduce the behaviour.
 
 HN support is being worked on.
 
+Dependency
+----------
+
+1.  OpenSSL
+2.  libiconv
+3.  zlib
+
 Usage
 =====
 

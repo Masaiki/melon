@@ -172,7 +172,7 @@ cnki_hn(cnki_t **param)
 				conv_src[0] = buf[i + 7];
 				conv_src[1] = buf[i + 6];
 
-				conv_size = 512;
+				conv_size = 6;
 
 				if (strconv(&conv_dst, "UTF-16BE",
 					conv_src, "GB18030", &conv_size) == 0) {
@@ -202,7 +202,7 @@ cnki_hn(cnki_t **param)
 				conv_src[0] = ptr->text[i + 3];
 				conv_src[1] = ptr->text[i + 2];
 
-				conv_size = 512;
+				conv_size = 6;
 
 				if (strconv(&conv_dst, "UTF-16BE",
 					conv_src, "GB18030", &conv_size) == 0) {

@@ -42,7 +42,7 @@ _outline(pdf_object_t **pdf, object_outline_tree_t **outline_tree, int id, int *
 
 		strcat(dictionary, "<<\n");
 
-		size = 512;
+		size = 514;
 		str = NULL;
 
 		if (strconv(&str, "UTF-16BE",
