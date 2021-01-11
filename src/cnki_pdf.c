@@ -77,7 +77,11 @@ cnki_pdf(cnki_t **param)
 	if ((*param)->stat > 0)
 		printf("Discovered %d parent object(s)\n", parent[0]);
 
-	int parent_missing[parent[0]];
+	int *parent_missing = malloc(parent[0] * sizeof(int));
+
+	if (parent_missing == NULL)
+		return 1;
+
 	int *kid;
 
 	for (int i = 1; i <= parent[0]; i++) {
@@ -89,7 +93,7 @@ cnki_pdf(cnki_t **param)
 
 		if (kid[0] != 0) {
 			if ((*param)->stat > 0)
-				printf("Object is missing\n");
+				printf("Object %d is missing\n", parent[i]);
 
 			if ((*param)->stat > 1)
 				printf("Generating object\n");
@@ -97,8 +101,11 @@ cnki_pdf(cnki_t **param)
 			dictionary_size = 64 + 12 * kid[0];
 			dictionary = malloc(dictionary_size);
 
-			if (dictionary == NULL)
+			if (dictionary == NULL) {
+				free(parent);
+				free(parent_missing);
 				return 1;
+			}
 
 			memset(dictionary, 0, dictionary_size);
 
@@ -134,7 +141,7 @@ cnki_pdf(cnki_t **param)
 			parent_missing[i - 1] = 0;
 
 			if ((*param)->stat > 0)
-				printf("Object exists\n");
+				printf("Object %d exists\n", parent[i]);
 		}
 
 		free(kid);
@@ -146,8 +153,11 @@ cnki_pdf(cnki_t **param)
 	dictionary_size = 128;
 	dictionary = malloc(dictionary_size);
 
-	if (dictionary == NULL)
+	if (dictionary == NULL) {
+		free(parent);
+		free(parent_missing);
 		return 1;
+	}
 
 	memset(dictionary, 0, dictionary_size);
 
@@ -155,7 +165,7 @@ cnki_pdf(cnki_t **param)
 
 	int root_kid = 0;
 	for (int i = 0; i < parent[0]; i++)
-		if (parent_missing[i])
+		if (parent_missing[i] == 1)
 			root_kid++;
 
 	if (root_kid <= 1) {
@@ -165,7 +175,7 @@ cnki_pdf(cnki_t **param)
 					root = parent[i];
 		} else {
 			for (int i = 0; i < parent[0]; i++)
-				if (parent_missing[i])
+				if (parent_missing[i] == 1)
 					root = i;
 		}
 
@@ -188,12 +198,12 @@ cnki_pdf(cnki_t **param)
 		if (parent[0] > 1)
 			strcat(dictionary, "[");
 
-		for (int i = 0; i < parent[0]; i++) {
+		for (int i = 0, j = 0; i < parent[0]; i++) {
 			if (parent_missing[i]) {
 				snprintf(buf, 64, "%d 0 R", parent[i + 1]);
 				strcat(dictionary, buf);
 
-				if (i < root_kid)
+				if (++j < root_kid)
 					strcat(dictionary, " ");
 			}
 		}
@@ -216,6 +226,9 @@ cnki_pdf(cnki_t **param)
 			printf("Generated root object %d.\n",
 				root);
 	}
+
+	free(parent);
+	free(parent_missing);
 
 	int *ids = NULL;
 

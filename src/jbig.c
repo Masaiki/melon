@@ -24,7 +24,7 @@ strdec_jbig(char **bitmap, int *bitmap_size,
 	int ret;
 	if ((ret = jbg_dec_in(&sd, (unsigned char *) data_ptr,
 		data_size, NULL)) != JBG_EOK) {
-		printf("%s", jbg_strerror(ret));
+		printf("%s\n", jbg_strerror(ret));
 		jbg_dec_free(&sd);
 		return 1;
 	}
