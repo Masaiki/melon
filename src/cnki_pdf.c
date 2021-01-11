@@ -559,7 +559,7 @@ cnki_pdf_hn(cnki_t **param)
 
 			if (ret == 0) {
 				if ((*param)->stat > 2)
-					printf("Succeed\n");
+					printf("Done\n");
 
 				pdf_obj_append(&pdf, ids[i],
 					NULL, dictionary, stream, stream_size);
@@ -567,9 +567,6 @@ cnki_pdf_hn(cnki_t **param)
 				free(dictionary);
 				free(stream);
 			} else if (ret == 1) {
-				if ((*param)->stat > 2)
-					printf("; Failed\n");
-
 				free(dictionary);
 
 				pdf_obj_append(&pdf, ids[i], NULL, NULL, NULL, 0);
@@ -860,8 +857,6 @@ cnki_pdf_hn(cnki_t **param)
 		return 1;
 	}
 
-	memset(dictionary, 0, dictionary_size);
-
 	pdf_object_t *tmp = NULL;
 
 	/* Add /Parent to page object */
@@ -874,7 +869,7 @@ cnki_pdf_hn(cnki_t **param)
 
 		memset(dictionary, 0, dictionary_size);
 
-		strcat(dictionary, tmp->dictionary);
+		memcpy(dictionary, tmp->dictionary, tmp->dictionary_size);
 
 		snprintf(buf, 64, "/Parent %d 0 R\n>>", root);
 		strcat(dictionary, buf);
