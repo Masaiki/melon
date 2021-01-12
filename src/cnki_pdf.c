@@ -692,15 +692,20 @@ cnki_pdf_hn(cnki_t **param)
 
 		strcat(dictionary, "q\n");
 
-		strcat(dictionary, "0.120000 0 0 0.120000 0 0 cm\n");
+		strcat(dictionary, "0.25 0 0 0.25 0 0 cm\n");
 
 		for (int i = 0; i < ptr->image_length; i++) {
 			if (dim[i * 2] <= 0 || dim[i * 2 + 1] <= 0)
 				continue;
 
 			/* Apply transformation matrix */
-			if (ptr->image_data[i].format == DCT_1)
-				strcat(dictionary, "-1 0 0 -1 0 0 cm\n");
+			if (ptr->image_data[i].format == DCT_1) {
+				snprintf(buf, 64, "1 0 0 1 0 %d cm\n",
+					dim[i * 2 + 1]);
+				strcat(dictionary, buf);
+
+				strcat(dictionary, "1 0 0 -1 0 0 cm\n");
+			}
 
 			snprintf(buf, 64, "%d 0 0 %d 0 0 cm\n",
 				dim[i * 2], dim[i * 2 + 1]);
