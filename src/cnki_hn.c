@@ -5,14 +5,8 @@
  */
 
 #include <stdlib.h>
-#include <string.h>
 
 #include "cnki.h"
-#include "iconv.h"
-#include "zlib.h"
-#include "jpeg.h"
-#include "pdf.h"
-#include "pdf_cnki.h"
 
 int
 cnki_hn(cnki_t **param)

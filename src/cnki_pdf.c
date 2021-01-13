@@ -14,6 +14,146 @@
 #include "pdf.h"
 #include "pdf_cnki.h"
 
+static long
+_pdf_dump(cnki_t **param, pdf_object_t **pdf)
+{
+	if ((*param)->stat > 1)
+		printf("Writing header\n");
+
+	long cur = 0;
+
+	if ((*param)->stat > 0)
+		cur = ftell((*param)->fp_o);
+
+	if (pdf_dump_header(pdf, &(*param)->fp_o) != 0) {
+		fprintf(stderr, "Header not written\n");
+		return -1;
+	} else {
+		if ((*param)->stat > 0)
+			printf("Header %ld byte(s) written\n",
+				ftell((*param)->fp_o) - cur);
+	}
+
+	if ((*param)->stat > 1)
+		printf("Writing object(s)\n");
+
+	pdf_dump_obj(pdf, &(*param)->fp_o);
+
+	if ((*param)->stat > 1) {
+		printf("\t%8s\t%8s\t%8s\t%12s\t%12s\t%12s\n",
+			"address",
+			"size",
+			"id",
+			"object",
+			"dictionary",
+			"stream");
+
+		pdf_object_t *ptr = (*pdf)->next;
+		while (ptr != NULL) {
+			printf("\t%08x\t%8d\t%8d\t%12d\t%12d\t%12d\n",
+				ptr->address,
+				ptr->size,
+				ptr->id,
+				ptr->object_size,
+				ptr->dictionary_size,
+				ptr->stream_size);
+			ptr = ptr->next;
+		}
+	}
+
+	if ((*param)->stat > 0)
+		printf("%d object(s) %ld byte(s) written\n",
+			pdf_get_count(pdf),
+			ftell((*param)->fp_o));
+
+	long xref = ftell((*param)->fp_o);
+
+	if ((*param)->stat > 1)
+		printf("Writing cross-reference table\n");
+
+	if (pdf_dump_xref(pdf, &(*param)->fp_o) != 0) {
+		if ((*param)->stat > 0)
+			printf("Cross-reference table not written\n");
+	} else {
+		if ((*param)->stat > 0)
+			printf("Cross-reference table %ld byte(s) written\n",
+				ftell((*param)->fp_o) - xref);
+	}
+
+	if ((*param)->stat > 1)
+		printf("Writing trailer\n");
+
+	if ((*param)->stat > 0)
+		cur = ftell((*param)->fp_o);
+
+	if (pdf_dump_trailer(pdf, &(*param)->fp_o, xref) != 0) {
+		if ((*param)->stat > 0)
+			printf("Trailer not written\n");
+	} else {
+		if ((*param)->stat > 0)
+			printf("Trailer %ld byte(s) written\n",
+				ftell((*param)->fp_o) - cur);
+	}
+
+	if ((*param)->stat > 0)
+		printf("Total %ld byte(s) written\n",
+			ftell((*param)->fp_o));
+
+	return ftell((*param)->fp_o);
+}
+
+static int
+_pdf_cnki_outline(cnki_t **param, pdf_object_t **pdf)
+{
+	int ret = -1;
+	int *ids = NULL;
+
+	if ((*param)->file_stat->outline > 0) {
+		if ((*param)->stat > 1)
+			printf("Generating outline object(s)\n\t%8s\n", "id");
+
+		pdf_get_free_ids(pdf, &ids, (*param)->file_stat->outline + 1);
+		int outline = pdf_cnki_outline(pdf, &(*param)->object_outline, &ids);
+
+		if ((*param)->stat > 1)
+			for (int i = 0; i < (*param)->file_stat->outline + 1; i++)
+				printf("\t%8d\n", ids[i]);
+
+		if ((*param)->stat > 0) {
+			if (outline != 0)
+				printf("No outline information\n");
+			else
+				printf("Generated %d outline object(s)\n",
+					(*param)->file_stat->outline + 1);
+		}
+
+		ret = ids[0];
+		free(ids);
+	}
+
+	return ret;
+}
+
+static int
+_pdf_obj_sort(cnki_t **param, pdf_object_t **pdf)
+{
+	int ret;
+
+	if ((*param)->stat > 1)
+		printf("Sorting object(s)\n");
+
+	ret = pdf_obj_sort(pdf);
+
+	if ((*param)->stat > 0) {
+		if (ret == 0)
+			printf("Sorted object(s)\n");
+		else
+			printf("Object(s) not sorted\n");
+	}
+
+	return ret;
+}
+
 int
 cnki_pdf(cnki_t **param)
 {
@@ -230,27 +370,7 @@ cnki_pdf(cnki_t **param)
 	free(parent);
 	free(parent_missing);
 
-	int *ids = NULL;
-
-	if ((*param)->file_stat->outline > 0) {
-		if ((*param)->stat > 1)
-			printf("Generating outline object(s)\n\t%8s\n", "id");
-
-		pdf_get_free_ids(&pdf, &ids, (*param)->file_stat->outline + 1);
-		int outline = pdf_cnki_outline(&pdf, &(*param)->object_outline, &ids);
-
-		if ((*param)->stat > 1)
-			for (int i = 0; i < (*param)->file_stat->outline + 1; i++)
-				printf("\t%8d\n", ids[i]);
-
-		if ((*param)->stat > 0) {
-			if (outline != 0)
-				printf("No outline information\n");
-			else
-				printf("Generated %d outline object(s)\n",
-					(*param)->file_stat->outline + 1);
-		}
-	}
+	int outline = _pdf_cnki_outline(param, &pdf);
 
 	if ((*param)->stat > 1)
 		printf("Searching for catalog object\n");
@@ -272,10 +392,10 @@ cnki_pdf(cnki_t **param)
 			root);
 		strcat(dictionary, buf);
 
-		if (ids != NULL) {
+		if (outline != -1) {
 			snprintf(buf, 64,
 				"/Outlines %d 0 R\n/PageMode /UseOutlines\n",
-				ids[0]);
+				outline);
 			strcat(dictionary, buf);
 		}
 
@@ -310,95 +430,9 @@ cnki_pdf(cnki_t **param)
 
 	free(dictionary);
 
-	if ((*param)->stat > 1)
-		printf("Sorting object(s)\n");
+	_pdf_obj_sort(param, &pdf);
 
-	pdf_obj_sort(&pdf);
-
-	if ((*param)->stat > 0)
-		printf("Sorted object(s)\n");
-
-	if ((*param)->stat > 1)
-		printf("Writing header\n");
-
-	long cur = 0;
-
-	if ((*param)->stat > 0)
-		cur = ftell((*param)->fp_o);
-
-	if (pdf_dump_header(&pdf, &(*param)->fp_o) != 0) {
-		fprintf(stderr, "Header not written\n");
-		return 1;
-	} else {
-		if ((*param)->stat > 0)
-			printf("Header %ld byte(s) written\n",
-				ftell((*param)->fp_o) - cur);
-	}
-
-	if ((*param)->stat > 1)
-		printf("Writing object(s)\n");
-
-	pdf_dump_obj(&pdf, &(*param)->fp_o);
-
-	if ((*param)->stat > 1) {
-		printf("\t%8s\t%8s\t%8s\t%12s\t%12s\t%12s\n",
-			"address",
-			"size",
-			"id",
-			"object",
-			"dictionary",
-			"stream");
-
-		pdf_object_t *ptr = pdf->next;
-		while (ptr != NULL) {
-			printf("\t%08x\t%8d\t%8d\t%12d\t%12d\t%12d\n",
-				ptr->address,
-				ptr->size,
-				ptr->id,
-				ptr->object_size,
-				ptr->dictionary_size,
-				ptr->stream_size);
-			ptr = ptr->next;
-		}
-	}
-
-	if ((*param)->stat > 0)
-		printf("%d object(s) %ld byte(s) written\n",
-			pdf_get_count(&pdf),
-			ftell((*param)->fp_o));
-
-	long cur_xref = ftell((*param)->fp_o);
-
-	if ((*param)->stat > 1)
-		printf("Writing cross-reference table\n");
-
-	if (pdf_dump_xref(&pdf, &(*param)->fp_o) != 0) {
-		if ((*param)->stat > 0)
-			printf("Cross-reference table not written\n");
-	} else {
-		if ((*param)->stat > 0)
-			printf("Cross-reference table %ld byte(s) written\n",
-				ftell((*param)->fp_o) - cur_xref);
-	}
-
-	if ((*param)->stat > 1)
-		printf("Writing trailer\n");
-
-	if ((*param)->stat > 0)
-		cur = ftell((*param)->fp_o);
-
-	if (pdf_dump_trailer(&pdf, &(*param)->fp_o, cur_xref) != 0) {
-		if ((*param)->stat > 0)
-			printf("Trailer not written\n");
-	} else {
-		if ((*param)->stat > 0)
-			printf("Trailer %ld byte(s) written\n",
-				ftell((*param)->fp_o) - cur);
-	}
-
-	if ((*param)->stat > 0)
-		printf("Total %ld byte(s) written\n",
-			ftell((*param)->fp_o));
+	_pdf_dump(param, &pdf);
 
 	pdf_obj_destroy(&pdf);
 
@@ -424,8 +458,6 @@ cnki_pdf_hn(cnki_t **param)
 
 	char buf[64];
 
-	int *ids = NULL;
-
 	int cnt = 0;
 	int *root_kid = malloc((*param)->file_stat->page * sizeof(int));
 
@@ -442,6 +474,7 @@ cnki_pdf_hn(cnki_t **param)
 		 * resource object +
 		 * page object
 		 */
+		int *ids = NULL;
 		pdf_get_free_ids(&pdf, &ids, ptr->image_length + 3);
 
 		int stream_size;
@@ -761,8 +794,6 @@ cnki_pdf_hn(cnki_t **param)
 		root_kid[cnt++] = ids[ptr->image_length + 2];
 
 		free(ids);
-		ids = NULL;
-
 		free(dim);
 
 		ptr = ptr->next;
@@ -790,27 +821,7 @@ cnki_pdf_hn(cnki_t **param)
 		printf("Generated %d object(s)\n",
 			pdf_get_count(&pdf));
 
-	ids = NULL;
-
-	if ((*param)->file_stat->outline > 0) {
-		if ((*param)->stat > 1)
-			printf("Generating outline object(s)\n\t%8s\n", "id");
-
-		pdf_get_free_ids(&pdf, &ids, (*param)->file_stat->outline + 1);
-		int outline = pdf_cnki_outline(&pdf, &(*param)->object_outline, &ids);
-
-		if ((*param)->stat > 1)
-			for (int i = 0; i < (*param)->file_stat->outline + 1; i++)
-				printf("\t%8d\n", ids[i]);
-
-		if ((*param)->stat > 0) {
-			if (outline != 0)
-				printf("No outline information\n");
-			else
-				printf("Generated %d outline object(s)\n",
-					(*param)->file_stat->outline + 1);
-		}
-	}
+	int outline = _pdf_cnki_outline(param, &pdf);
 
 	if ((*param)->stat > 1)
 		printf("Generating root object\n");
@@ -902,10 +913,10 @@ cnki_pdf_hn(cnki_t **param)
 		root);
 	strcat(dictionary, buf);
 
-	if (ids != NULL) {
+	if (outline != -1) {
 		snprintf(buf, 64,
 			"/Outlines %d 0 R\n/PageMode /UseOutlines\n",
-			ids[0]);
+			outline);
 		strcat(dictionary, buf);
 	}
 
@@ -918,95 +929,9 @@ cnki_pdf_hn(cnki_t **param)
 	if ((*param)->stat > 0)
 		printf("Generated catalog object\n");
 
-	if ((*param)->stat > 1)
-		printf("Sorting object(s)\n");
+	_pdf_obj_sort(param, &pdf);
 
-	pdf_obj_sort(&pdf);
-
-	if ((*param)->stat > 0)
-		printf("Sorted object(s)\n");
-
-	if ((*param)->stat > 1)
-		printf("Writing header\n");
-
-	long cur = 0;
-
-	if ((*param)->stat > 0)
-		cur = ftell((*param)->fp_o);
-
-	if (pdf_dump_header(&pdf, &(*param)->fp_o) != 0) {
-		fprintf(stderr, "Header not written\n");
-		return 1;
-	} else {
-		if ((*param)->stat > 0)
-			printf("Header %ld byte(s) written\n",
-				ftell((*param)->fp_o) - cur);
-	}
-
-	if ((*param)->stat > 1)
-		printf("Writing object(s)\n");
-
-	pdf_dump_obj(&pdf, &(*param)->fp_o);
-
-	if ((*param)->stat > 1) {
-		printf("\t%8s\t%8s\t%8s\t%12s\t%12s\t%12s\n",
-			"address",
-			"size",
-			"id",
-			"object",
-			"dictionary",
-			"stream");
-
-		pdf_object_t *ptr = pdf->next;
-		while (ptr != NULL) {
-			printf("\t%08x\t%8d\t%8d\t%12d\t%12d\t%12d\n",
-				ptr->address,
-				ptr->size,
-				ptr->id,
-				ptr->object_size,
-				ptr->dictionary_size,
-				ptr->stream_size);
-			ptr = ptr->next;
-		}
-	}
-
-	if ((*param)->stat > 0)
-		printf("%d object(s) %ld byte(s) written\n",
-			pdf_get_count(&pdf),
-			ftell((*param)->fp_o));
-
-	long xref = ftell((*param)->fp_o);
-
-	if ((*param)->stat > 1)
-		printf("Writing cross-reference table\n");
-
-	if (pdf_dump_xref(&pdf, &(*param)->fp_o) != 0) {
-		if ((*param)->stat > 0)
-			printf("Cross-reference table not written\n");
-	} else {
-		if ((*param)->stat > 0)
-			printf("Cross-reference table %ld byte(s) written\n",
-				ftell((*param)->fp_o) - xref);
-	}
-
-	if ((*param)->stat > 1)
-		printf("Writing trailer\n");
-
-	if ((*param)->stat > 0)
-		cur = ftell((*param)->fp_o);
-
-	if (pdf_dump_trailer(&pdf, &(*param)->fp_o, xref) != 0) {
-		if ((*param)->stat > 0)
-			printf("Trailer not written\n");
-	} else {
-		if ((*param)->stat > 0)
-			printf("Trailer %ld byte(s) written\n",
-				ftell((*param)->fp_o) - cur);
-	}
-
-	if ((*param)->stat > 0)
-		printf("Total %ld byte(s) written\n",
-			ftell((*param)->fp_o));
+	_pdf_dump(param, &pdf);
 
 	pdf_obj_destroy(&pdf);
 
