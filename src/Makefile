@@ -15,7 +15,7 @@ obj = ${src:.c=.o}
 
 PREFIX = /usr/local
 
-CFLAGS = -O3 -march=native -pipe -flto=thin -Wall -Wextra -Wno-unused-parameter
+CFLAGS = -O3 -march=native -pipe -flto -Wall -Wextra -Wno-unused-parameter
 LDFLAGS = -Wl,-O3 -lcrypto -liconv -lz -ljbig -ljpeg -Wl,--as-needed
 
 CFLAGS += -I/usr/local/include

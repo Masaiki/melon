@@ -44,10 +44,19 @@ cnki_destroy(cnki_t **param)
 	if (*param != NULL) {
 		if ((*param)->file_stat != NULL)
 			free((*param)->file_stat);
-		if ((*param)->object_outline != NULL)
-			free((*param)->object_outline);
-		if ((*param)->object_hn != NULL)
-			free((*param)->object_hn);
+
+		object_outline_t *ptr_outline;
+		while ((ptr_outline = (*param)->object_outline) != NULL) {
+			(*param)->object_outline = (*param)->object_outline->next;
+			free(ptr_outline);
+		}
+
+		object_hn_t *ptr_hn;
+		while ((ptr_hn = (*param)->object_hn) != NULL) {
+			(*param)->object_hn = (*param)->object_hn->next;
+			free(ptr_hn);
+		}
+
 		free(*param);
 	}
 }
