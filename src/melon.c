@@ -14,7 +14,7 @@
 #include "version.h"
 
 int
-main(int argc, char **argv, char **envp)
+main(int argc, char **argv)
 {
 	cnki_t *param = NULL;
 
