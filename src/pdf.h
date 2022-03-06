@@ -66,3 +66,5 @@ int pdf_get_xref_id(pdf_object_t **pdf);
 int pdf_get_parent_id(pdf_object_t **pdf, int **id);
 int pdf_get_kid_id(pdf_object_t **pdf, int id, int **kid);
 int pdf_get_kid_count(pdf_object_t **pdf, int id);
+
+void *memmem(const void *haystack, size_t haystack_len, const void * const needle, const size_t needle_len);
